@@ -281,7 +281,7 @@ What the app does that a test must wait past, found by recording it in a real br
 
 ### Findings
 
-Behaviour of the app found while writing the steps, reported to the maintainers' list, not filed:
+Found while writing the steps; not reported upstream yet (the owner decides).
 
 - **A stale announcement on an error page reached inside the app.** A missing post reached inside the app (a
   navigation whose view throws a 404) shows Nuxt's error page in the same document, while the route announcer still
