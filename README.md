@@ -29,7 +29,8 @@ assertions that must fail in each; see [`.github/workflows/test.yml`](.github/wo
 ## Wiring the page up
 
 A page with a Vue app is waited on until the app has wired it up: Nuxt's own flag (`isHydrating` turning false), or,
-in an app without Nuxt, the mount of the app (Vue marks its element `data-v-app`). Every step that acts (using a link,
+in an app without Nuxt, the mount of the app (Vue marks the element it mounts in the browser `data-v-app`; an app
+rendered on the server and hydrated keeps only its element's own app, which the steps read too). Every step that acts (using a link,
 sending a form) waits for it first, as a click before then loads a whole page; `Given the page is wired up` waits for
 it on purpose. A page without an app, and every page in a browser without JavaScript, have nothing to wait for: the
 steps go on, and say so in the run's log.

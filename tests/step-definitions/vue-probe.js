@@ -126,7 +126,14 @@ function appProbe() {
   const nuxtApp = () => {
     try { return typeof window.useNuxtApp === 'function' ? window.useNuxtApp() : null; } catch (e) { return null; }
   };
-  const vueRoot = () => document.querySelector('[data-v-app]');
+  // A Vue app mounted in the browser marks its element data-v-app; one rendered on the server and hydrated does not,
+  // and only its element's own app (__vue_app__) says it is there.
+  const vueRoot = () => {
+    const marked = document.querySelector('[data-v-app]');
+    if (marked) return marked;
+    const el = document.getElementById('app');
+    return el && el.__vue_app__ ? el : null;
+  };
   // A Vue app that has not mounted yet: create-vue's page, an empty #app and the app's module script.
   const vueShell = () => !!(document.getElementById('app') && document.querySelector('script[type="module"]'));
   const vueRouter = () => {
