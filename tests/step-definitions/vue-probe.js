@@ -146,6 +146,11 @@ function appProbe() {
   // Wired up: Nuxt's app no longer hydrating, or a Vue app mounted. Once it is, the probe listens to the
   // app's navigations: Nuxt's page:loading hooks (an error that ends a navigation ends it too), or Vue
   // Router's guards in an app without Nuxt.
+  //
+  // A navigation that a guard redirects runs the guards again for the new address: the router marks that hop
+  // with the address it came from (redirectedFrom). Nuxt calls page:loading:start for each hop and
+  // page:loading:end once, when the last address has loaded; so a redirected hop folds the count back to the
+  // one navigation it belongs to, and with Vue Router alone it is not counted again.
   function wiredUp() {
     const app = nuxtApp();
     if (app) {
@@ -157,6 +162,12 @@ function appProbe() {
           app.hook('page:loading:end', navEnd);
           app.hook('app:error', () => { if (state.navPending) { state.navPending = 0; state.navEnds += 1; state.lastNavEnd = now(); } });
           app.hook('vue:error', () => { if (state.navPending) { state.navPending = 0; state.navEnds += 1; state.lastNavEnd = now(); } });
+          const nuxtRouter = app.$router;
+          if (nuxtRouter && typeof nuxtRouter.beforeEach === 'function') {
+            nuxtRouter.beforeEach((to) => {
+              if (to && to.redirectedFrom && state.navPending > 1) { state.navStarts -= state.navPending - 1; state.navPending = 1; }
+            });
+          }
         } catch (e) { /* an app without hooks: the address and the quiet still tell */ }
       }
       return true;
@@ -167,7 +178,7 @@ function appProbe() {
     if (router && !state.hooked) {
       state.hooked = true;
       try {
-        router.beforeEach(() => { navStart(); });
+        router.beforeEach((to) => { if (!(to && to.redirectedFrom && state.navPending > 0)) navStart(); });
         router.afterEach(() => { navEnd(); });
         router.onError(() => { if (state.navPending) navEnd(); });
       } catch (e) { /* the quiet still tells */ }

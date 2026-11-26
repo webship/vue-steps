@@ -32,6 +32,23 @@ Feature: The app's views
     And I wait for the view's data to arrive
     Then I should see "success" in the "#status" element
 
+  # A link whose view the app redirects: a route middleware sends /posts/latest on to the latest post. The router
+  # runs its guards once for each address, and the steps follow the navigation to its last one.
+  @needs-javascript
+  Scenario: A link whose view the app redirects changes the view in place, to where it was sent
+    Given I am on "/posts"
+    When I use the "The latest post" link
+    Then the view should have changed in place
+    And the view's address should be "/posts/3"
+    And the new view should be announced as "Forms"
+
+  @no-javascript
+  Scenario: Without JavaScript a redirected link loads the page it was sent to
+    Given I am on "/posts"
+    When I use the "The latest post" link
+    Then a new page should have loaded
+    And the view's address should be "/posts/3"
+
   @no-javascript
   Scenario: Without JavaScript every link loads a new page
     Given I am on "/"
