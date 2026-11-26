@@ -1,0 +1,69 @@
+{
+  "name": "@webship-js/vue-steps",
+  "version": "2.0.0",
+  "description": "Cucumber step definitions for Vue apps, Nuxt first, a plugin for webship-js (Playwright and Cucumber): steps that wait for the app to wire the server's page up, follow its views to the end of each navigation, send its forms with JavaScript and without, and wait on its data and its error pages, never on a fixed time.",
+  "main": "tests/step-definitions/vue-helpers.js",
+  "files": [
+    "tests/step-definitions/",
+    "tests/features/",
+    "demo/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "cucumber-js --config cucumber.js",
+    "test:dry": "cucumber-js --config cucumber.js --dry-run",
+    "test:examples": "node tests/check-examples.js",
+    "test:paths": "node tests/check-paths.js",
+    "test:must-fail": "node tests/check-must-fail.js",
+    "test:chromium": "BROWSER=chromium cucumber-js --config cucumber.js",
+    "test:firefox": "BROWSER=firefox cucumber-js --config cucumber.js",
+    "test:webkit": "BROWSER=webkit cucumber-js --config cucumber.js",
+    "test:headed": "HEADLESS=false cucumber-js --config cucumber.js",
+    "generate-reports": "generate-reports",
+    "test:fast": "SLOW_MO=0 cucumber-js --config cucumber.js",
+    "demo:build": "bash .github/scripts/build-demo.sh",
+    "demo:serve": "bash .github/scripts/serve-demo.sh"
+  },
+  "keywords": [
+    "webship-js",
+    "vue",
+    "nuxt",
+    "hydration",
+    "vue-router",
+    "progressive-enhancement",
+    "cucumber",
+    "cucumber-js",
+    "playwright",
+    "bdd",
+    "testing",
+    "e2e",
+    "gherkin"
+  ],
+  "author": "Webship.co",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/webship/vue-steps.git"
+  },
+  "bugs": {
+    "url": "https://github.com/webship/vue-steps/issues"
+  },
+  "homepage": "https://github.com/webship/vue-steps#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">= 24.0"
+  },
+  "peerDependencies": {
+    "webship-js": "^2.0.18"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.0",
+    "webship-js": "^2.0.18"
+  },
+  "overrides": {
+    "@cucumber/cucumber": "^12"
+  }
+}
