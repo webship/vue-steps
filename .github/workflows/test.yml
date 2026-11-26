@@ -1,0 +1,112 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - 2.0.x
+  pull_request:
+    branches:
+      - 2.0.x
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# The runs of a pull request share a group, so a newer push cancels the run
+# it supersedes. Every other run (a push to 2.0.x, a run started by hand)
+# gets a group of its own: it is never queued behind another run, and never
+# cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  demo:
+    # The demo: Nuxt's official starter with the pages of demo/, made and built in a pinned Node.js image,
+    # served by its own server: the whole suite against it twice in a browser with JavaScript and in one
+    # without (the server's pages and the form work without it), and in each the assertions that must fail.
+    name: vue-steps on the demo (JavaScript ${{ matrix.javascript }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        javascript: ['on', 'off']
+    env:
+      HEADLESS: 'true'
+      FORCE_COLOR: '1'
+      LAUNCH_URL: http://127.0.0.1:3000
+      JAVASCRIPT: ${{ matrix.javascript }}
+      CUCUMBER_TAGS: ${{ matrix.javascript == 'off' && 'not @wip and not @must-fail and not @needs-javascript' || 'not @wip and not @must-fail and not @no-javascript' }}
+      MUST_FAIL_TAGS: ${{ matrix.javascript == 'off' && '@must-fail and not @needs-javascript' || '@must-fail and not @no-javascript' }}
+      # The lane in the name and the title of each report, so a failure without JavaScript is never read as
+      # one with it.
+      REPORT_NAME: cucumber_report-javascript-${{ matrix.javascript }}
+      WEBSHIP_REPORT_NAME: vue-steps, JavaScript ${{ matrix.javascript }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check the JSDoc examples and feature steps against the step regexes
+        run: npm run test:examples
+
+      - name: Check that a feature named on the command line runs alone
+        run: npm run test:paths
+
+      - name: Run cucumber-js dry-run (ambiguity / undefined step check)
+        run: npx cucumber-js --dry-run
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Make and build the demo
+        run: bash .github/scripts/build-demo.sh
+
+      - name: Serve the demo
+        run: |
+          nohup bash .github/scripts/serve-demo.sh 3000 > serve.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -sf "$LAUNCH_URL/" > /dev/null && exit 0
+            sleep 1
+          done
+          echo "The demo did not answer" >&2
+          cat serve.log >&2
+          exit 1
+
+      - name: Run the test suite (JavaScript ${{ matrix.javascript }})
+        run: npx cucumber-js
+
+      - name: Run the test suite again (it leaves the demo as it found it)
+        run: npx cucumber-js
+
+      - name: Run the assertions that must fail (JavaScript ${{ matrix.javascript }})
+        run: npm run test:must-fail
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-report-javascript-${{ matrix.javascript }}
+          path: tests/reports/
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Upload failure screenshots and videos
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failure-screenshots-javascript-${{ matrix.javascript }}
+          path: |
+            screenshots/
+            videos/
+          retention-days: 14
+          if-no-files-found: ignore
