@@ -1,3 +1,5 @@
+<p align="center"><img src="https://raw.githubusercontent.com/webship/vue-steps/2.0.x/assets/logo.svg" alt="Vue logo" width="96"></p>
+
 # vue-steps
 
 Cucumber step definitions for Vue apps, Nuxt first, for [webship-js](https://webship.co/docs/webship-js/2.0.x), a BDD
@@ -405,4 +407,5 @@ MIT (see `LICENSE`).
 
 ## Logo
 
-The logo of this pack is pending the owner's decision: it comes before the first release.
+The Vue logo is the Vue team's, designed by Evan You, from github.com/vuejs/art, under CC BY-NC-SA 4.0
+(https://creativecommons.org/licenses/by-nc-sa/4.0/). It is not covered by this package's MIT licence.
