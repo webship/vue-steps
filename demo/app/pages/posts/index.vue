@@ -11,6 +11,7 @@ const { data: posts, refresh, status } = await useFetch('/api/posts')
         <NuxtLink :to="`/posts/${post.id}`">{{ post.title }}</NuxtLink>
       </li>
     </ul>
+    <p><NuxtLink to="/posts/latest">The latest post</NuxtLink></p>
     <button type="button" @click="refresh()">Load the posts again</button>
     <p>Status: <span id="status">{{ status }}</span></p>
   </section>

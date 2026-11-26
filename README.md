@@ -161,14 +161,14 @@ JavaScript and in one without:
 
 - the app wiring the page up, a page drawn in the browser only, and a count that changes in place;
 - views: a link that changes the view in place, the announcement of the new view's title, the link of the current
-  view, the view's address, a view with data of its own and the browser's back, data loaded again, and the new pages
-  a browser without JavaScript loads;
+  view, the view's address, a view with data of its own and the browser's back, data loaded again, a link whose view
+  the app redirects, and the new pages a browser without JavaScript loads;
 - the contact form: a message taken, one turned down with its message, sent in place with JavaScript and leading to a
   new page without it;
 - the error pages of a missing post and of an address the app does not know.
 
-Not tested: layouts and middleware of the app's own, server components and islands, lazy hydration, and the
-development server.
+Not tested: layouts of the app's own, middleware other than a redirect, server components and islands, lazy
+hydration, and the development server.
 
 ## Requirements
 
@@ -278,6 +278,10 @@ What the app does that a test must wait past, found by recording it in a real br
   page when that link is gone: the app does not move it.
 - **An error page has no announcer.** Nuxt's error page is drawn without the app's own layout (`app.vue`), so the
   announcer is not there.
+- **A redirect is one navigation of several addresses.** When a route middleware sends an address on to another, the
+  router runs its guards again for the new one, and Nuxt calls `page:loading:start` for each address but
+  `page:loading:end` once, when the last has loaded. The steps count the addresses the router marks as redirected
+  (`redirectedFrom`) as part of the navigation they belong to, and with Vue Router alone they count them once.
 
 ### Findings
 
@@ -388,8 +392,9 @@ starter, and runs `npm install` and `npm run build`, in a Node.js 24 container p
 - The starter is Nuxt's own, released under the MIT licence by the Nuxt team (https://github.com/nuxt/starter): it is
   made at each build, and nothing of it is in this repository.
 - The pages of `demo/` are this pack's own (MIT): a home page with a counter, an about page, posts from a server route
-  (`useFetch`, `refresh()`, `createError` for a missing post), a contact form that works without JavaScript and is
-  sent in place with it, and a page drawn in the browser only.
+  (`useFetch`, `refresh()`, `createError` for a missing post, and a route middleware that sends `/posts/latest` on to
+  the latest post), a contact form that works without JavaScript and is sent in place with it, and a page drawn in
+  the browser only.
 - Nuxt's own suite and its examples (MIT) were read, to learn what the framework does that a test must wait for;
   nothing of them is in this repository.
 

@@ -45,6 +45,12 @@ Feature: Assertions on the page, its views and its errors that must fail
     Given I am on "/about"
     Then the view's address should be "/contact"
 
+  Scenario: The address a link goes to, not the one it was sent to
+    Fails with: Expected the view's address to be "/posts/latest", but it is "/posts/3".
+    Given I am on "/posts"
+    When I use the "The latest post" link
+    Then the view's address should be "/posts/latest"
+
   Scenario: A link the page does not have
     Fails with: Expected a link named "Pricing" on the page, but there is none.
     Given I am on "/"
